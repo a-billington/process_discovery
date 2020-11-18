@@ -1,0 +1,60 @@
+---
+title: "Comparison of process discover algorithms"
+author: "Andrew Billington"
+date: "17/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(here)
+source(here("/R/packages.r"))
+
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE)
+
+# Load Data 
+dat <- eventdataR::hospital_billing
+
+```
+
+# Introduction
+
+
+# The Data 
+
+
+# Everything 
+
+```{r}
+
+dat %>% processmapR::process_map()
+
+```
+
+
+# Sensible Filters
+```{r}
+
+dat %>% 
+  edeaR::filter_trace_frequency(percentage = 0.9) %>% 
+  processmapR::process_map()
+
+```
+
+# Alpha Miner 
+
+Require Python, pm4py, Microsoft Visual C++ 14.0 
+
+```{r}
+
+dat_complete <- dat %>% 
+  edeaR::filter_lifecycle("complete")
+
+pm4py::discovery_alpha(patients_completes) -> PN
+
+```
+
+# Heuristics Miner
+
+
+# Inductive Miner 
