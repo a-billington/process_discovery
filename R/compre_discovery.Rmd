@@ -1,60 +1,79 @@
 ---
-title: "Comparison of process discover algorithms"
-author: "Andrew Billington"
-date: "17/11/2020"
+title: "Process Discovery"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 library(here)
-source(here("/R/packages.r"))
+source(here("R/packages.r"))
 
-knitr::opts_chunk$set(echo = TRUE,
-                      warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
-# Load Data 
-dat <- eventdataR::hospital_billing
-
+# Load Data
+dat <- eventdataR::hospital_billing %>%
+  select(case_id, activity, activity_instance_id, lifecycle, resource, timestamp)
 ```
 
 # Introduction
 
 
-# The Data 
-
-
-# Everything 
+# Everything
 
 ```{r}
-
-dat %>% processmapR::process_map()
-
+process_map(dat)
 ```
 
+# Traces 
 
-# Sensible Filters
 ```{r}
-
 dat %>% 
-  edeaR::filter_trace_frequency(percentage = 0.9) %>% 
-  processmapR::process_map()
+  trace_explorer()
 
 ```
 
-# Alpha Miner 
 
-Require Python, pm4py, Microsoft Visual C++ 14.0 
-
+# Just use filters?
 ```{r}
-
-dat_complete <- dat %>% 
-  edeaR::filter_lifecycle("complete")
-
-pm4py::discovery_alpha(patients_completes) -> PN
-
+dat %>%
+  filter_trace_frequency(percentage = 0.95) %>%
+  filter_activity_presence(
+    activities = "BILLED",
+    method = "one_of"
+  ) %>%
+  process_map()
 ```
+
 
 # Heuristics Miner
 
+## Defaults 
+```{r}
+dat %>%
+  dependency_matrix() %>%
+  render_dependency_matrix()
+```
 
-# Inductive Miner 
+## Remove Self-Loops 
+```{r}
+dat %>%
+  dependency_matrix(dependency_type = dependency_type_fhm(threshold_l1  = 1)) %>%
+  render_dependency_matrix()
+```
+
+
+## Remove Length-Two Loops
+```{r}
+dat %>%
+  dependency_matrix(dependency_type = dependency_type_fhm(threshold_l2 = 1)) %>%
+  render_dependency_matrix()
+```
+
+
+## Both? 
+```{r}
+dat %>%
+  dependency_matrix(dependency_type = dependency_type_fhm(threshold_l1 = 1, 
+                                                          threshold_l2 = 1)) %>%
+  render_dependency_matrix()
+```
+
